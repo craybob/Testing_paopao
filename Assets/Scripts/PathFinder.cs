@@ -8,14 +8,54 @@ public class PathFinder : MonoBehaviour
     public List<Node> CheckedNodes = new List<Node>();
     public List<Node> FreeNodes = new List<Node>();
     List<Node> WaitingNodes = new List<Node>();
-    public GameObject Target;
+    public Transform Target;
     public LayerMask SolidLayer;
 
+    [SerializeField] int changeAxis;
+    [SerializeField] bool axisX = false;
+
+    Camera mainCamera;
+
+    private void Start()
+    {
+        mainCamera = Camera.main;
+    }
 
     // Update is called once per frame
     void Update()
     {
-        //PathToTarget = GetPath(Target.transform.position);
+        PathToTarget = GetPath(Target.position);
+
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit))
+            {
+                hit.collider.gameObject.GetComponent<Transform>().position = Target.position;
+            }
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            for (int i = 0; i < PathToTarget.Count; i++)
+            {
+                if (PathToTarget[0].x != PathToTarget[i].x && axisX == false)
+                {
+                    axisX = true;
+                    if (axisX == true)
+                    {
+                        changeAxis++;
+                        Debug.Log(PathToTarget[i]);
+                    }
+                }
+                else if (PathToTarget[0].y != PathToTarget[i].y && axisX == true)
+                {
+                    //Debug.Log(PathToTarget[i]);
+                    //axisX = false;
+                }
+            }
+        }
+        
     }
 
     public List<Vector2> GetPath(Vector2 target)
@@ -23,6 +63,9 @@ public class PathFinder : MonoBehaviour
         PathToTarget = new List<Vector2>();
         CheckedNodes = new List<Node>();
         WaitingNodes = new List<Node>();
+
+        
+        
 
         Vector2 StartPosition = new Vector2(Mathf.Round(transform.position.x), Mathf.Round(transform.position.y));
         Vector2 TargetPosition = new Vector2(Mathf.Round(target.x), Mathf.Round(target.y));
@@ -58,6 +101,8 @@ public class PathFinder : MonoBehaviour
             }
         }
         FreeNodes = CheckedNodes;
+
+        
 
         return PathToTarget;
     }
